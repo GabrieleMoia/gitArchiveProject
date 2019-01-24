@@ -16,12 +16,17 @@ object download {
       .getOrCreate()
     import sqlContext.implicits._
 
-    new URL("https://srv-file1.gofile.io/download/e5xxGs/57b9b04d902588405c3d4c6022e151ee/2018-03-01-0.json.gz") #> new File("C:/righe")
+    fileDownloader("https://srv-file1.gofile.io/download/e5xxGs/57b9b04d902588405c3d4c6022e151ee/2018-03-01-0.json.gz", "righe.gz")
 
 
-    val df = sqlContext.read.json("C:/Users/Studente/Desktop/righe.gz")
+    val df = sqlContext.read.json("righe.gz")
     df.show()
 
     //df.collect().foreach(new GitArchive($"id", $"type", $"actor", $"repo",$"payload", $"public",$"created_at"))
+
+  }
+
+  def fileDownloader(url: String, filename: String) = {
+    new URL(url) #> new File(filename) !!
   }
 }
