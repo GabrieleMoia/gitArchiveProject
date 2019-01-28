@@ -1,3 +1,7 @@
+package dao;
+
+import classes.Actor;
+
 import java.sql.*;
 
 public class ActorDao {
