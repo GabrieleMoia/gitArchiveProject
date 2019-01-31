@@ -34,7 +34,7 @@ public class AuthorDao {
             Class.forName("org.postgresql.Driver");
             Connection conn = DriverManager.getConnection(url, user, password);
             Statement statement = conn.createStatement();
-            String sql = "INSERT INTO actor (name, email) VALUES (" + author.name() + "','" + author.email() + "');";
+            String sql = "INSERT INTO author (name, email) VALUES (" + author.name() + "','" + author.email() + "');";
             statement.executeUpdate(sql);
             statement.close();
             conn.close();

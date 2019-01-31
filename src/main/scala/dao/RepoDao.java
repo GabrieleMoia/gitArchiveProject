@@ -33,7 +33,7 @@ public class RepoDao {
             Class.forName("org.postgresql.Driver");
             Connection conn = DriverManager.getConnection(url, user, password);
             Statement statement = conn.createStatement();
-            String sql = "INSERT INTO actor (id, name, url) VALUES (" + repo.id() + "','" + repo.name() + "','" + repo.url() + "');";
+            String sql = "INSERT INTO repo (id, name, url) VALUES (" + repo.id() + "','" + repo.name() + "','" + repo.url() + "');";
             statement.executeUpdate(sql);
             statement.close();
             conn.close();
