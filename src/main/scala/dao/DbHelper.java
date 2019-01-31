@@ -1,22 +1,20 @@
 package dao;
 
-import classes.Repo;
-
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.*;
 import java.util.Properties;
 
-public class RepoDao {
+public class DbHelper {
+
     private static Properties properties;
     private static FileInputStream in;
     private static String driver;
     private static Connection conn;
     private static String url, username, password;
 
-
-    public static void connection() {
+    public static Connection connection() {
         try {
             properties = new Properties();
             in = new FileInputStream("db_properties.properties");
@@ -45,35 +43,14 @@ public class RepoDao {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return conn;
     }
 
-    public static void insertRepo(Repo repo) {
-
+    public static void close_connecction() {
         try {
-            Statement statement = conn.createStatement();
-            String sql = "INSERT INTO actor (id, name, url) VALUES (" + repo.id() + "','" + repo.name() + "','" + repo.url() + "');";
-            statement.executeUpdate(sql);
-            statement.close();
-        } catch (SQLException ex) {
-            System.out.println(ex.getMessage());
-        }
-    }
-
-    public static void viewRepo() {
-
-        try {
-            Statement statement = conn.createStatement();
-            String sql = "SELECT * FROM repo";
-            ResultSet rs = statement.executeQuery(sql);
-            while (rs.next()) {
-                int id = rs.getInt("id");
-                String name = rs.getString("name");
-                String url = rs.getString("url");
-                System.out.println(id + " " + name + " " + url);
-            }
-            statement.close();
-        } catch (SQLException ex) {
-            System.out.println(ex.getMessage());
+            conn.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 }
