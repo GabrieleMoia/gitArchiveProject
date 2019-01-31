@@ -13,7 +13,7 @@ public class DbHelper {
     public static Connection connection() {
         try {
             Properties properties = new Properties();
-            FileInputStream in = new FileInputStream("db_properties.properties");
+            FileInputStream in = new FileInputStream("src/main/resources/db_properties.properties");
             properties.load(in);
             String driver = properties.getProperty("jdbc.driver");
 
