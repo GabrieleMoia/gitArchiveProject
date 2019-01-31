@@ -8,24 +8,20 @@ import java.util.Properties;
 
 public class DbHelper {
 
-    private static Properties properties;
-    private static FileInputStream in;
-    private static String driver;
     private static Connection conn;
-    private static String url, username, password;
 
     public static Connection connection() {
         try {
-            properties = new Properties();
-            in = new FileInputStream("db_properties.properties");
+            Properties properties = new Properties();
+            FileInputStream in = new FileInputStream("db_properties.properties");
             properties.load(in);
-            driver = properties.getProperty("jdbc.driver");
+            String driver = properties.getProperty("jdbc.driver");
 
             if (driver != null) {
                 Class.forName(driver);
-                url = properties.getProperty("jdbc.url");
-                username = properties.getProperty("jdbc.username");
-                password = properties.getProperty("jdbc.password");
+                String url = properties.getProperty("jdbc.url");
+                String username = properties.getProperty("jdbc.username");
+                String password = properties.getProperty("jdbc.password");
                 conn = DriverManager.getConnection(url, username, password);
                 Statement statement = conn.createStatement();
                 ResultSet resultSet = statement.executeQuery("SELECT VERSION()");
