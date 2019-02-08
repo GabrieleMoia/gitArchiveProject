@@ -11,13 +11,14 @@ import scala.sys.process._
 
 object download {
   def main(args: Array[String]): Unit = {
-    val conf = new SparkConf().setMaster("local[2]")
-      .setAppName("SparkEx")
+    val sparkConfProperties = new PropertiesHelper().getSparkConfProperties()
+    val conf = new SparkConf().setMaster(sparkConfProperties.getProperty("conf.master"))
+      .setAppName(sparkConfProperties.getProperty("conf.appName"))
 
     val sc = new SparkContext(conf)
-    val sqlContext = new SparkSession.Builder().master("local")
-      .appName("SparkParser")
-      .config("spark.some.config.option", "some-value")
+    val sqlContext = new SparkSession.Builder().master(sparkConfProperties.getProperty("sqlContext.master"))
+      .appName(sparkConfProperties.getProperty("sqlContext.appName"))
+      .config("spark.some.config.option", sparkConfProperties.getProperty("sqlContext.configOption"))
       .getOrCreate()
     import sqlContext.implicits._
 

@@ -1,5 +1,5 @@
 import scala.util.Try
-import java.io.{ File, FileOutputStream }
+import java.io.{File, FileInputStream, FileOutputStream}
 import java.util.Properties
 
 class PropertiesHelper {
@@ -11,11 +11,13 @@ class PropertiesHelper {
     val file = new File("src/main/resources/SparkConf.properties")
     val fos = new FileOutputStream(file)
 
-    prop.setProperty("", "")
-
+    prop.setProperty("conf.master", "local[2]")
+    prop.setProperty("conf.appName","SparkEx")
+    prop.setProperty("sqlContext.master", "local")
+    prop.setProperty("sqlContext.sppName", "SparkParser")
     prop.store(fos, "")
 
-    fos.close();
+    fos.close()
   }
 
   def writePropertiesApplication ()  = Try {
@@ -29,7 +31,20 @@ class PropertiesHelper {
     prop.setProperty("jdbc.password", "root")
     prop.store(fos, "")
 
-    fos.close();
+    fos.close()
   }
 
+  def getSparkConfProperties () : Properties = {
+    val sparkProperties = new Properties
+    val in = new FileInputStream("src/main/resources/SparkConf.properties")
+    sparkProperties.load(in)
+    return sparkProperties
+  }
+
+  def getApplicationProperties () : Properties = {
+    val applicationProperties = new Properties
+    val in = new FileInputStream("src/main/resources/application.properties")
+    applicationProperties.load(in)
+    return applicationProperties
+  }
 }
