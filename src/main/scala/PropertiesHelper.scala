@@ -13,8 +13,8 @@ class PropertiesHelper {
 
     prop.setProperty("conf.master", "local[2]")
     prop.setProperty("conf.appName","SparkEx")
-    prop.setProperty("sqlContext.master", "local")
-    prop.setProperty("sqlContext.sppName", "SparkParser")
+    prop.setProperty("sqlContext.master", "local[2]")
+    prop.setProperty("sqlContext.appName", "SparkParser")
     prop.store(fos, "")
 
     fos.close()
