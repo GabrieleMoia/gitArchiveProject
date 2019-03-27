@@ -2,7 +2,7 @@ import scala.util.Try
 import java.io.{File, FileInputStream, FileOutputStream}
 import java.util.Properties
 
-class PropertiesHelper {
+class PropertiesHelperUtil {
 
   class PropertiesHelper()
 

@@ -1,3 +1,3 @@
 package classes
 
-case class Payload(push_id: Int,size: Int,distinct_size: Int,ref: String,head: String,before: String,commits: Commits)
+case class Payload(push_id: BigInt,size: BigInt,distinct_size: BigInt,ref: String,head: String,before: String,commits: Seq[Commits])
