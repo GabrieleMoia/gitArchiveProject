@@ -1,29 +1,31 @@
 package converter
 
-import classes.GitArchive
+import classes.{GitArchive, Payload}
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.{DataFrame, Dataset, Row, SQLContext}
+import org.apache.spark.sql._
 
 object PayloadConverter {
 
-  def getPayloadRDD(dataset: Dataset[GitArchive]): RDD[Row] = {
-    val payloadRDD = dataset.select("payload.*").rdd
+  val encode = Encoders.product[Payload]
+
+  def getPayloadRDD(dataset: Dataset[GitArchive]): RDD[Payload] = {
+    val payloadRDD = dataset.select("payload.*").as[Payload](encode).rdd
     payloadRDD
   }
 
-  def getPayloaPairRDD(dataset: Dataset[GitArchive]): RDD[(Int, Row)] = {
-    val payloadRDD = dataset.select("payload.*").rdd
-    val payloaPairdRDD : RDD[(Int, Row)] = payloadRDD.map(x => (x.getAs("push_id"), x))
+  def getPayloaPairRDD(dataset: Dataset[GitArchive]): RDD[(BigInt, Payload)] = {
+    val payloadRDD = dataset.select("payload.*").as[Payload](encode).rdd
+    val payloaPairdRDD : RDD[(BigInt, Payload)] = payloadRDD.map(x => (x.push_id, x))
     payloaPairdRDD
   }
 
-  def getActorDataFrame(dataset: Dataset[GitArchive], sqlContext: SQLContext): DataFrame = {
-    val payloadDataFrame = dataset.select("payload.*").toDF()
+  def getActorDataFrame(dataset: Dataset[GitArchive]): DataFrame = {
+    val payloadDataFrame = dataset.select("payload.*").as[Payload](encode).toDF()
     payloadDataFrame
   }
 
-  def getPayloadDataSet(dataset: Dataset[GitArchive]): Dataset[Row] = {
-    val payloadDataSet = dataset.select("payload.*")
+  def getPayloadDataSet(dataset: Dataset[GitArchive]): Dataset[Payload] = {
+    val payloadDataSet = dataset.select("payload.*").as[Payload](encode)
     payloadDataSet
   }
 

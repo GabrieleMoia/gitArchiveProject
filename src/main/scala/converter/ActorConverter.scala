@@ -1,29 +1,33 @@
 package converter
 
-import classes.{GitArchive}
-import org.apache.spark.rdd.{RDD}
+import classes.{Actor, GitArchive}
+import org.apache.spark.rdd.RDD
 import org.apache.spark.sql._
 
 object ActorConverter {
 
-  def getActorRDD(dataset: Dataset[GitArchive]): RDD[Row] = {
-    val actorRDD = dataset.select("actor.*").dropDuplicates("id").rdd
+  val encode = Encoders.product[Actor]
+
+  def getActorRDD(dataset: Dataset[GitArchive]): RDD[Actor] = {
+
+    val actorRDD = dataset.select("actor.*").dropDuplicates("id").as[Actor](encode).rdd
     actorRDD
   }
 
-  def getActorPairRDD(dataset: Dataset[GitArchive]): RDD[(Int, Row)] = {
-    val actorRDD = dataset.select("actor.*").dropDuplicates("id").rdd
-    val actorPairRDD : RDD[(Int, Row)] = actorRDD.map(x => (x.getAs("id"), x))
+  def getActorPairRDD(dataset: Dataset[GitArchive]): RDD[(BigInt, Actor)] = {
+    val actorRDD = dataset.select("actor.*").dropDuplicates("id").as[Actor](encode).rdd
+    val actorPairRDD : RDD[(BigInt, Actor)] = actorRDD.map(x => (x.id, x))
     actorPairRDD
   }
 
-  def getActorDataFrame(dataset: Dataset[GitArchive], sqlContext: SQLContext): DataFrame = {
-    val actorDataFrame = dataset.select("actor.*").dropDuplicates("id").toDF()
+  def getActorDataFrame(dataset: Dataset[GitArchive]): DataFrame = {
+    val actorDataFrame = dataset.select("actor.*").dropDuplicates("id").as[Actor](encode).toDF()
     actorDataFrame
   }
 
-  def getActorDataSet(dataset: Dataset[GitArchive]): Dataset[Row] = {
-    val actorDataSet = dataset.select("actor.*").dropDuplicates("id")
+  def getActorDataSet(dataset: Dataset[GitArchive]): Dataset[Actor] = {
+
+    val actorDataSet = dataset.select("actor.*").dropDuplicates("id").as[Actor](encode)
     actorDataSet
   }
 }

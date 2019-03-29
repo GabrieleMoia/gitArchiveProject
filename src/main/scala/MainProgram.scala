@@ -27,8 +27,12 @@ object MainProgram {
     val jsonDFPublic2 = sqlContext.read.option("inferSchema", 20).json("2018-03-01-0.json").withColumnRenamed("public", "publico")
     val gitArchiveDs : Dataset[GitArchive] = jsonDFPublic2.as[GitArchive](encode)
     gitArchiveDs.dropDuplicates("id")
-    gitArchiveDs.show()
 
+
+    val a1 = ActorConverter.getActorDataSet(gitArchiveDs).show()
+    val a2 = ActorConverter.getActorDataFrame(gitArchiveDs).show()
+    val a3 = ActorConverter.getActorPairRDD(gitArchiveDs).collect().foreach(println)
+    val a4 = ActorConverter.getActorPairRDD(gitArchiveDs).collect().foreach(println)
   }
 
   def fileDownloader(url: String, filename: String) = {
