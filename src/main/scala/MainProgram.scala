@@ -1,10 +1,10 @@
 import java.io.File
 import java.net.URL
 
-import classes.{Actor, GitArchive}
-import converter.{ActorConverter, PayloadConverter, RepoConverter}
+import classes.GitArchive
 import org.apache.spark.sql._
 import org.apache.spark.{SparkConf, SparkContext}
+import utils.ActorUtils
 
 import scala.sys.process._
 
@@ -29,10 +29,14 @@ object MainProgram {
     gitArchiveDs.dropDuplicates("id")
 
 
-    val a1 = ActorConverter.getActorDataSet(gitArchiveDs).show()
-    val a2 = ActorConverter.getActorDataFrame(gitArchiveDs).show()
-    val a3 = ActorConverter.getActorPairRDD(gitArchiveDs).collect().foreach(println)
-    val a4 = ActorConverter.getActorPairRDD(gitArchiveDs).collect().foreach(println)
+    val a1 = ActorUtils.getActorDataSet(gitArchiveDs)
+    val a2 = ActorUtils.getActorDataFrame(gitArchiveDs)
+    val a3 = ActorUtils.getActorPairRDD(gitArchiveDs)
+
+
+    val a4 = ActorUtils.getActorRDD(gitArchiveDs).count()
+
+
   }
 
   def fileDownloader(url: String, filename: String) = {

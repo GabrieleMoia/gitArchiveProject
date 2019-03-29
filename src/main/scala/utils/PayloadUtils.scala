@@ -1,10 +1,10 @@
-package converter
+package utils
 
 import classes.{GitArchive, Payload}
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql._
+import org.apache.spark.sql.{DataFrame, Dataset, Encoders}
 
-object PayloadConverter {
+object PayloadUtils {
 
   val encode = Encoders.product[Payload]
 
@@ -19,7 +19,7 @@ object PayloadConverter {
     payloaPairdRDD
   }
 
-  def getActorDataFrame(dataset: Dataset[GitArchive]): DataFrame = {
+  def getPayloadDataFrame(dataset: Dataset[GitArchive]): DataFrame = {
     val payloadDataFrame = dataset.select("payload.*").as[Payload](encode).toDF()
     payloadDataFrame
   }
@@ -29,4 +29,24 @@ object PayloadConverter {
     payloadDataSet
   }
 
+  def payloadDataFrameToCSV(dfPayload: DataFrame){
+    dfPayload.select("push_id", "size", "distinct_size", "ref", "head", "before", "commits")
+    dfPayload.coalesce(1).write.format("com.databricks.spark.csv").csv("payload")
+  }
+
+  def payloadRDDCount(rdd: RDD[Payload]): Long = {
+    rdd.count()
+  }
+
+  def payloadPairRDDCount(pairRdd: RDD[(BigInt, Payload)]): Long = {
+    pairRdd.count()
+  }
+
+  def payloadDataFrameCount(dataFrame: DataFrame): Long = {
+    dataFrame.count()
+  }
+
+  def payloadDataSetCount(dataSet: Dataset[Payload]): Long = {
+    dataSet.count()
+  }
 }
