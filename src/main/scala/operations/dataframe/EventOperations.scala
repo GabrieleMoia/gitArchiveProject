@@ -30,6 +30,12 @@ class EventOperations(sc: SparkContext) {
     minEventPerActor
   }
 
+  def getEventPerHour(data: DataFrame): DataFrame = {
+    val actorAndType = data.select($"id", $"created_at")
+    val eventPerActorAndType = actorAndType.groupBy("created_at").count()
+    eventPerActorAndType
+  }
+
   def getEventPerActorAndType(data: DataFrame): DataFrame = {
     val actorAndType = data.select($"id", $"tipo", $"actor.id".as("actorId"))
     val eventPerActorAndType = actorAndType.groupBy("tipo", "actorId").count()

@@ -16,7 +16,7 @@ class ActorOperation(sc: SparkContext) {
 
 
   def getActorPerHour(data: DataFrame): DataFrame = {
-    val actorPerHour = data.select($"actor.id".as("actorId"), $"created_at").groupBy("created_at").count()
+    val actorPerHour = data.select($"actor".as("actorId"), $"created_at").groupBy("created_at").count()
     actorPerHour
   }
 
