@@ -3,3 +3,8 @@
 
 *.iml
 *.class
+*.csv
+*.crc
+*.kotlin_module
+*.json
+_SUCCESS
