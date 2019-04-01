@@ -30,8 +30,10 @@ object PayloadUtils {
   }
 
   def payloadDataFrameToCSV(dfPayload: DataFrame){
+    val csvProperties = new PropertiesHelperUtil().getCSVProperties()
+
     dfPayload.select("push_id", "size", "distinct_size", "ref", "head", "before", "commits")
-    dfPayload.coalesce(1).write.format("com.databricks.spark.csv").csv("payload")
+    dfPayload.coalesce(1).write.mode("overwrite").format("com.databricks.spark.csv").csv(csvProperties.getProperty("payload.csv"))
   }
 
   def payloadRDDCount(rdd: RDD[Payload]): Long = {

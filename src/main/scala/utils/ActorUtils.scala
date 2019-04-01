@@ -16,7 +16,7 @@ object ActorUtils {
 
   def getActorPairRDD(dataset: Dataset[GitArchive]): RDD[(BigInt, Actor)] = {
     val actorRDD = dataset.select("actor.*").dropDuplicates("id").as[Actor](encode).rdd
-    val actorPairRDD : RDD[(BigInt, Actor)] = actorRDD.map(x => (x.id, x))
+    val actorPairRDD: RDD[(BigInt, Actor)] = actorRDD.map(x => (x.id, x))
     actorPairRDD
   }
 
@@ -31,9 +31,11 @@ object ActorUtils {
     actorDataSet
   }
 
-  def actorDataFrameToCSV(dfActor: DataFrame){
+  def actorDataFrameToCSV(dfActor: DataFrame) {
+    val csvProperties = new PropertiesHelperUtil().getCSVProperties()
+
     dfActor.select("id", "login", "display_login", "gravatar_id", "url", "avatar_url")
-    dfActor.coalesce(1).write.format("com.databricks.spark.csv").csv("actor")
+    dfActor.coalesce(1).write.mode("overwrite").format("com.databricks.spark.csv").csv(csvProperties.getProperty("actor.csv"))
   }
 
   def actorRDDCount(rdd: RDD[Actor]): Long = {

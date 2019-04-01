@@ -2,9 +2,10 @@ import java.io.File
 import java.net.URL
 
 import classes.GitArchive
+import operations.dataframe.EventOperations
 import org.apache.spark.sql._
 import org.apache.spark.{SparkConf, SparkContext}
-import utils.ActorUtils
+import utils.{ActorUtils, AuthorUtils, PropertiesHelperUtil, RepoUtils}
 
 import scala.sys.process._
 
@@ -21,22 +22,37 @@ object MainProgram {
       .getOrCreate()
     import sqlContext.implicits._
 
-    fileDownloader("http://data.githubarchive.org/2018-03-01-0.json.gz", "")
+    //fileDownloader("http://data.githubarchive.org/2018-03-01-0.json.gz", "2018-03-01-0.json")
 
     val encode = Encoders.product[GitArchive]
-    val jsonDFPublic2 = sqlContext.read.option("inferSchema", 20).json("2018-03-01-0.json").withColumnRenamed("public", "publico")
-    val gitArchiveDs : Dataset[GitArchive] = jsonDFPublic2.as[GitArchive](encode)
+    val jsonDFPublic2 = sqlContext.read.option("inferSchema", 20).json("2018-03-01-0.json").withColumnRenamed("public", "publico").withColumnRenamed("type", "tipo")
+    val gitArchiveDs: Dataset[GitArchive] = jsonDFPublic2.as[GitArchive](encode)
     gitArchiveDs.dropDuplicates("id")
 
+    val actor = ActorUtils.getActorDataFrame(gitArchiveDs)
+    ActorUtils.actorDataFrameToCSV(actor)
 
-    val a1 = ActorUtils.getActorDataSet(gitArchiveDs)
-    val a2 = ActorUtils.getActorDataFrame(gitArchiveDs)
-    val a3 = ActorUtils.getActorPairRDD(gitArchiveDs)
+    //val author = AuthorUtils.getAuthorDataFrame(gitArchiveDs)
+    //AuthorUtils.authorDataFrameToCSV(author)
 
+    val types = RepoUtils.getTypes(gitArchiveDs).distinct()
+    RepoUtils.typeToCSV(types)
 
-    val a4 = ActorUtils.getActorRDD(gitArchiveDs).count()
+    val repo = RepoUtils.getRepoDataFrame(gitArchiveDs)
+    RepoUtils.repoDataFrameToCSV(repo)
 
+    val actorCount = ActorUtils.actorDataFrameCount(actor)
+    println("acotor count " + actorCount)
 
+    val repoCount = RepoUtils.repoDataFrameCount(repo)
+    println("repo count " + repoCount)
+    val actorOperations = new EventOperations(sc)
+
+    val eventForTypeAndActor = actorOperations.getMaxEventPerRepo(gitArchiveDs.toDF())
+    eventForTypeAndActor.show()
+
+    val eventForTypeActorandrepo = actorOperations.getMinEventPerRepo(gitArchiveDs.toDF())
+    eventForTypeActorandrepo.show()
   }
 
   def fileDownloader(url: String, filename: String) = {

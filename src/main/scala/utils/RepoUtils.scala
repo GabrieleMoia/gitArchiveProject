@@ -15,7 +15,7 @@ object RepoUtils {
 
   def getRepoPairRDD(dataset: Dataset[GitArchive]): RDD[(BigInt, Repo)] = {
     val repoRDD = dataset.select("repo.*").as[Repo](encode).rdd
-    val repoPairRDD : RDD[(BigInt, Repo)] = repoRDD.map(x => (x.id, x))
+    val repoPairRDD: RDD[(BigInt, Repo)] = repoRDD.map(x => (x.id, x))
     repoPairRDD
   }
 
@@ -29,9 +29,21 @@ object RepoUtils {
     repoDataSet
   }
 
-  def repoDataFrameToCSV(dfRepo: DataFrame){
+  def getTypes(dataset: Dataset[GitArchive]): DataFrame = {
+    val typeDataFrame = dataset.select("tipo").toDF()
+    typeDataFrame
+  }
+
+  def typeToCSV(dfTipo:DataFrame){
+    val csvProperties = new PropertiesHelperUtil().getCSVProperties()
+    dfTipo.coalesce(1).write.mode("overwrite").format("com.databricks.spark.csv").csv(csvProperties.getProperty("type.csv"))
+  }
+
+  def repoDataFrameToCSV(dfRepo: DataFrame) {
+    val csvProperties = new PropertiesHelperUtil().getCSVProperties()
+
     dfRepo.select("id", "name", "url")
-    dfRepo.coalesce(1).write.format("com.databricks.spark.csv").csv("Repo")
+    dfRepo.coalesce(1).write.mode("overwrite").format("com.databricks.spark.csv").csv(csvProperties.getProperty("repo.csv"))
   }
 
   def repoRDDCount(rdd: RDD[Repo]): Long = {

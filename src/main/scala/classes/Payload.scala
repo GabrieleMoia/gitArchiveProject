@@ -7,4 +7,4 @@ case class Payload(
   ref: String,
   head: String,
   before: String,
-  commits: Seq[Commits])
+  commits: Seq[Commit])
