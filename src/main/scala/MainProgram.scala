@@ -2,7 +2,7 @@ import java.io.File
 import java.net.URL
 
 import classes.GitArchive
-import operations.dataframe.EventOperations
+import operations.dataframe.{ActorOperation, EventOperations}
 import org.apache.spark.sql._
 import org.apache.spark.{SparkConf, SparkContext}
 import utils.{ActorUtils, AuthorUtils, PropertiesHelperUtil, RepoUtils}
@@ -46,13 +46,18 @@ object MainProgram {
 
     val repoCount = RepoUtils.repoDataFrameCount(repo)
     println("repo count " + repoCount)
-    val actorOperations = new EventOperations(sc)
+    val eventOperations = new EventOperations(sc)
+    val actorOperation = new ActorOperation(sc)
 
-    val eventForTypeAndActor = actorOperations.getMaxEventPerRepo(gitArchiveDs.toDF())
+    val eventForTypeAndActor = actorOperation.getActorPerHour(gitArchiveDs.toDF())
     eventForTypeAndActor.show()
 
-    val eventForTypeActorandrepo = actorOperations.getMinEventPerRepo(gitArchiveDs.toDF())
-    eventForTypeActorandrepo.show()
+    val ed = actorOperation.getActorPerTypeAndHour(gitArchiveDs.toDF())
+    ed.show()
+
+    val dv = actorOperation.getActorPerTypeHourAndRepo(gitArchiveDs.toDF())
+    dv.show()
+
   }
 
   def fileDownloader(url: String, filename: String) = {
