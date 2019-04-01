@@ -5,6 +5,7 @@ import org.apache.spark.SparkContext
 import org.apache.spark.sql.functions.{max, min}
 import org.apache.spark.sql.{DataFrame, Encoders}
 import org.apache.spark.sql.hive.HiveContext
+import utils.PropertiesHelperUtil
 
 class CommitOperation(sc: SparkContext) {
 
@@ -20,7 +21,11 @@ class CommitOperation(sc: SparkContext) {
   }
 
   def getCommitPerActor(data: DataFrame): DataFrame = {
+    val csvProperties = new PropertiesHelperUtil().getCSVProperties()
     val commitPerActor = data.select($"payload.commits", $"actor.id".as("actorId")).groupBy("actorId").count()
+    commitPerActor.select("actorId", "count")
+    commitPerActor.coalesce(1).write.mode("overwrite").format("com.databricks.spark.csv").csv(csvProperties.getProperty("calculate.csv"))
+
     commitPerActor
   }
 

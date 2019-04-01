@@ -47,6 +47,7 @@ class PropertiesHelperUtil {
     prop.setProperty("actor.csv", "ActorCSV")
     prop.setProperty("payload.csv", "PayloadCSV")
     prop.setProperty("type.csv", "TypeCSV")
+    prop.setProperty("calculate.csv", "CountCSV")
     prop.store(fos, "")
     fos.close()
   }
