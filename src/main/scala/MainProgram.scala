@@ -2,7 +2,7 @@ import java.io.File
 import java.net.URL
 
 import classes.{Commit, GitArchive}
-import operations.dataframe.{ActorOperation, CommitOperation, EventOperations}
+import operations.dataframe.{ActorOperationDF, CommitOperationDF, EventOperationDF}
 import org.apache.spark.sql._
 import org.apache.spark.{SparkConf, SparkContext}
 import utils.{ActorUtils, AuthorUtils, PropertiesHelperUtil, RepoUtils}
@@ -32,8 +32,8 @@ object MainProgram {
     val actor = ActorUtils.getActorDataFrame(gitArchiveDs)
     ActorUtils.actorDataFrameToCSV(actor)
 
-    //val author = AuthorUtils.getAuthorDataFrame(gitArchiveDs)
-    //AuthorUtils.authorDataFrameToCSV(author)
+    val author = AuthorUtils.getAuthorDataFrame(gitArchiveDs)
+    AuthorUtils.authorDataFrameToCSV(author)
 
     val types = RepoUtils.getTypes(gitArchiveDs).distinct()
     RepoUtils.typeToCSV(types)
@@ -46,9 +46,9 @@ object MainProgram {
 
     val repoCount = RepoUtils.repoDataFrameCount(repo)
     println("repo count " + repoCount)
-    val eventOperations = new EventOperations(sc)
-    val actorOperation = new ActorOperation(sc)
-    val commitOperation = new CommitOperation(sc)
+    val eventOperations = new EventOperationDF(sc)
+    val actorOperation = new ActorOperationDF(sc)
+    val commitOperation = new CommitOperationDF(sc)
 
     val de = eventOperations.getEventPerActor(gitArchiveDs.toDF())
     de.show()

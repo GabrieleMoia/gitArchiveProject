@@ -2,6 +2,7 @@ package utils
 
 import classes._
 import org.apache.spark.rdd.RDD
+import org.apache.spark.sql.functions._
 import org.apache.spark.sql.{DataFrame, Dataset, Encoders}
 
 object AuthorUtils {
@@ -10,27 +11,28 @@ object AuthorUtils {
   val encodeCommit = Encoders.product[Commits]
   val encodeAuthor = Encoders.product[Author]
 
-  def getAuthorRDD(dataset: Dataset[GitArchive]): RDD[Payload] = {
-    val authorRDD = dataset.select("payload.*").as[Payload](encode).rdd
-    authorRDD
+  def getAuthorRDD(dataset: Dataset[GitArchive]): RDD[Author] = {
+    val authorExploded = dataset.select(explode(col("payload.commits.author")).as("author"))
+    val author = authorExploded.select("author.*").as[Author](encodeAuthor).rdd
+    author
   }
 
-  def getAuthorPairRDD(dataset: Dataset[GitArchive]): RDD[(BigInt, Payload)] = {
-    val authorRDD = dataset.select("payload.*").as[Payload](encode).rdd
-    val authorPairRDD: RDD[(BigInt, Payload)] = authorRDD.map(x => (x.push_id, x))
+  def getAuthorPairRDD(dataset: Dataset[GitArchive]): RDD[(String, Author)] = {
+    val authorExploded = dataset.select(explode(col("payload.commits.author")).as("author"))
+    val authorRDD = authorExploded.select("author.*").as[Author](encodeAuthor).rdd
+    val authorPairRDD: RDD[(String, Author)] = authorRDD.map(x => (x.name, x))
     authorPairRDD
   }
 
   def getAuthorDataFrame(dataset: Dataset[GitArchive]): DataFrame = {
-    val payloadDataFrame = dataset.select("payload.*").as[Payload](encode).toDF()
-    payloadDataFrame.show()
-    val commit = payloadDataFrame.select("commits").as[Commits](encodeCommit).toDF()
-    val authorDataFrame = commit.select("author.*").as[Author](encodeAuthor).toDF()
+    val authorExploded = dataset.select(explode(col("payload.commits.author")).as("author"))
+    val authorDataFrame = authorExploded.select("author.*").as[Author](encodeAuthor).toDF()
     authorDataFrame
   }
 
-  def getAuthorDataSet(dataset: Dataset[GitArchive]): Dataset[Payload] = {
-    val authorDataSet = dataset.select("payload.*").as[Payload](encode)
+  def getAuthorDataSet(dataset: Dataset[GitArchive]): Dataset[Author] = {
+    val authorExploded = dataset.select(explode(col("payload.commits.author")).as("author"))
+    val authorDataSet = authorExploded.select("author.*").as[Author](encodeAuthor)
     authorDataSet
   }
 
