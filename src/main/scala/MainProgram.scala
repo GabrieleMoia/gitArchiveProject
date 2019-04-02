@@ -3,6 +3,7 @@ import java.net.URL
 
 import classes.{Commit, GitArchive}
 import operations.dataframe.{ActorOperationDF, CommitOperationDF, EventOperationDF}
+import operations.dataset.{ActorOperationDS, EventOperationDS}
 import org.apache.spark.sql._
 import org.apache.spark.{SparkConf, SparkContext}
 import utils.{ActorUtils, AuthorUtils, PropertiesHelperUtil, RepoUtils}
@@ -46,15 +47,15 @@ object MainProgram {
 
     val repoCount = RepoUtils.repoDataFrameCount(repo)
     println("repo count " + repoCount)
-    val eventOperations = new EventOperationDF(sc)
-    val actorOperation = new ActorOperationDF(sc)
-    val commitOperation = new CommitOperationDF(sc)
 
-    val de = eventOperations.getEventPerActor(gitArchiveDs.toDF())
+    val eventOperationDF = new EventOperationDF(sc)
+    val eventOperationDS = new EventOperationDS(sqlContext)
+
+    val de = eventOperationDF.getMaxEventPerRepoHourAndActor(gitArchiveDs.toDF())
     de.show()
 
-    val commit = commitOperation.getCommitPerActor(gitArchiveDs.toDF())
-    commit.show()
+    val dc = eventOperationDS.getMaxEventPerActorRepoAndHour(gitArchiveDs)
+    dc.show()
 
   }
 

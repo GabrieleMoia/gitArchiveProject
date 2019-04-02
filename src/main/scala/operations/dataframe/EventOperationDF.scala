@@ -20,16 +20,6 @@ class EventOperationDF(sc: SparkContext) {
     eventPerActor
   }
 
-  def getMaxEventPerActor(data: DataFrame): DataFrame = {
-    val maxEventPerActor = getEventPerActor(data).agg(max("count"))
-    maxEventPerActor
-  }
-
-  def getMinEventPerActor(data: DataFrame): DataFrame = {
-    val minEventPerActor = getEventPerActor(data).agg(min("count"))
-    minEventPerActor
-  }
-
   def getEventPerHour(data: DataFrame): DataFrame = {
     val actorAndType = data.select($"id", $"created_at")
     val eventPerActorAndType = actorAndType.groupBy("created_at").count()
@@ -38,20 +28,30 @@ class EventOperationDF(sc: SparkContext) {
 
   def getEventPerActorAndType(data: DataFrame): DataFrame = {
     val actorAndType = data.select($"id", $"tipo", $"actor.id".as("actorId"))
-    val eventPerActorAndType = actorAndType.groupBy("tipo", "actorId").count()
+    val eventPerActorAndType = actorAndType.groupBy("actorId", "tipo").count()
     eventPerActorAndType
   }
 
   def getEventPerActorTypeAndRepo(data: DataFrame): DataFrame = {
     val actorTypeAndRepo = data.select($"id", $"tipo", $"repo.id".as("repoId"), $"actor.id".as("actorId"))
-    val eventPerActorAndType = actorTypeAndRepo.groupBy("tipo", "actorId", "repoId").count()
-    eventPerActorAndType
+    val eventPerActorTypeAndRepo = actorTypeAndRepo.groupBy("tipo", "actorId", "repoId").count()
+    eventPerActorTypeAndRepo
   }
 
   def getEventPerActorTypeRepoAndHour(data: DataFrame): DataFrame = {
     val actorTypeRepoAndHour = data.select($"id", $"tipo", $"repo.id".as("repoId"), $"actor.id".as("actorId"), $"created_at")
-    val eventPerActorAndType = actorTypeRepoAndHour.groupBy("tipo", "actorId", "repoId", "created_at").count()
-    eventPerActorAndType
+    val eventPerActorTypeRepoAndHour = actorTypeRepoAndHour.groupBy("actorId", "tipo", "repoId", "created_at").count()
+    eventPerActorTypeRepoAndHour
+  }
+
+  def getMaxEventPerActor(data: DataFrame): DataFrame = {
+    val maxEventPerActor = getEventPerActor(data).agg(max("count"))
+    maxEventPerActor
+  }
+
+  def getMinEventPerActor(data: DataFrame): DataFrame = {
+    val minEventPerActor = getEventPerActor(data).agg(min("count"))
+    minEventPerActor
   }
 
   def getMinEventPerHour(data: DataFrame): DataFrame = {
