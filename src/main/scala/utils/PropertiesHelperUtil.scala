@@ -32,6 +32,9 @@ class PropertiesHelperUtil {
     prop.setProperty("jdbc.url", "jdbc:postgresql://localhost:5432/gitArchiveProject")
     prop.setProperty("jdbc.username", "postgres")
     prop.setProperty("jdbc.password", "root")
+    prop.setProperty("date", "2019-04-02-1")
+    prop.setProperty("downloadLocation", "downloads")
+    prop.setProperty("extractLocation", "filesExtracted")
     prop.store(fos, "")
 
     fos.close()
