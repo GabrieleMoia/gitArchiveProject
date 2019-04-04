@@ -6,10 +6,11 @@ import scala.io.Source
 import classes.{Commit, GitArchive}
 import operations.dataframe.{ActorOperationDF, CommitOperationDF, EventOperationDF}
 import operations.dataset.{ActorOperationDS, CommitOperationDS, EventOperationDS}
+import operations.rdd.EventOperationRDD
 import org.apache.commons.io.FileUtils
-import org.apache.spark.sql._
+import org.apache.spark.rdd.RDD
+import org.apache.spark.sql.{Dataset, _}
 import org.apache.spark.{SparkConf, SparkContext}
-import org.glassfish.jersey.internal.util.PropertiesHelper
 import utils.{ActorUtils, AuthorUtils, PropertiesHelperUtil, RepoUtils}
 
 import scala.sys.process._
@@ -37,8 +38,10 @@ object MainProgram {
 
     //json parser
     val encode = Encoders.product[GitArchive]
-    val jsonDF = sqlContext.read.option("inferSchema", 20).json(date + ".json").withColumnRenamed("public", "publico").withColumnRenamed("type", "tipo")
+    val jsonDF = sqlContext.read.option("inferSchema", 20).json("2018-03-01-0.json").withColumnRenamed("public", "publico").withColumnRenamed("type", "tipo")
     val gitArchiveDs: Dataset[GitArchive] = jsonDF.as[GitArchive](encode)
+    val gitArchiveRDD: RDD[GitArchive] = jsonDF.as[GitArchive](encode).rdd
+
     gitArchiveDs.dropDuplicates("id")
 
     //write on CSV
@@ -59,6 +62,10 @@ object MainProgram {
 
     val repoCount = RepoUtils.repoDataFrameCount(repo)
     println("repo count " + repoCount)
+
+    val actoroperationds = new EventOperationRDD()
+    actoroperationds.getMaxEventPerActor(gitArchiveRDD).foreach(println)
+
   }
 
   def fileDownloader(indirizzo: String, filename: String) = {
