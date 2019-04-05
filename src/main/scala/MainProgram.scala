@@ -4,7 +4,7 @@ import java.util.zip.GZIPInputStream
 
 import scala.io.Source
 import classes.{Commit, GitArchive}
-import dao.ActorDAO
+import dao.{ActorDAO, AuthorDAO, RepoDAO}
 import operations.dataframe.{ActorOperationDF, CommitOperationDF, EventOperationDF}
 import operations.dataset.{ActorOperationDS, CommitOperationDS, EventOperationDS}
 import operations.rdd.EventOperationRDD
@@ -46,30 +46,24 @@ object MainProgram {
     gitArchiveDs.dropDuplicates("id")
 
     val actorDao = new ActorDAO()
+    val authorDao = new AuthorDAO()
+    val repoDao = new RepoDAO()
 
-    //write on CSV
+    //write on CSV and DB
     val actor = ActorUtils.getActorDataFrame(gitArchiveDs)
     ActorUtils.actorDataFrameToCSV(actor)
     actorDao.insertActor(actor)
 
     val author = AuthorUtils.getAuthorDataFrame(gitArchiveDs)
     AuthorUtils.authorDataFrameToCSV(author)
+    authorDao.insertAuthor(author)
 
     val types = RepoUtils.getTypes(gitArchiveDs).distinct()
     RepoUtils.typeToCSV(types)
 
     val repo = RepoUtils.getRepoDataFrame(gitArchiveDs)
     RepoUtils.repoDataFrameToCSV(repo)
-
-    val actorCount = ActorUtils.actorDataFrameCount(actor)
-    println("acotor count " + actorCount)
-
-    val repoCount = RepoUtils.repoDataFrameCount(repo)
-    println("repo count " + repoCount)
-
-    val actoroperationds = new EventOperationRDD()
-    actoroperationds.getMaxEventPerActor(gitArchiveRDD).foreach(println)
-
+    repoDao.insertRepo(repo)
   }
 
   def fileDownloader(indirizzo: String, filename: String) = {
