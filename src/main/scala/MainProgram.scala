@@ -3,18 +3,14 @@ import java.net.{HttpURLConnection, URL}
 import java.util.zip.GZIPInputStream
 
 import scala.io.Source
-import classes.{Commit, GitArchive}
+import classes.GitArchive
 import dao.{ActorDAO, AuthorDAO, RepoDAO}
-import operations.dataframe.{ActorOperationDF, CommitOperationDF, EventOperationDF}
-import operations.dataset.{ActorOperationDS, CommitOperationDS, EventOperationDS}
-import operations.rdd.EventOperationRDD
+import dataset.dataframe.EventOperationDF
 import org.apache.commons.io.FileUtils
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{Dataset, _}
 import org.apache.spark.{SparkConf, SparkContext}
 import utils.{ActorUtils, AuthorUtils, PropertiesHelperUtil, RepoUtils}
-
-import scala.sys.process._
 
 object MainProgram {
   def main(args: Array[String]): Unit = {
@@ -27,7 +23,6 @@ object MainProgram {
       .appName(sparkConfProperties.getProperty("sqlContext.appName"))
       .config("spark.some.config.option", "some-value")
       .getOrCreate()
-    import sqlContext.implicits._
 
     val applicationProperties = new PropertiesHelperUtil().getApplicationProperties()
     val date = applicationProperties.getProperty("date")
@@ -64,6 +59,11 @@ object MainProgram {
     val repo = RepoUtils.getRepoDataFrame(gitArchiveDs)
     RepoUtils.repoDataFrameToCSV(repo)
     repoDao.insertRepo(repo)
+
+    val eventOperation = new EventOperationDF(sc)
+    val df = eventOperation.getEventPerActor(gitArchiveDs.toDF())
+    df.show()
+
   }
 
   def fileDownloader(indirizzo: String, filename: String) = {

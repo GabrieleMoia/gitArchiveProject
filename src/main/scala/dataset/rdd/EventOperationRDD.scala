@@ -1,4 +1,4 @@
-package operations.rdd
+package dataset.rdd
 
 import classes.{Actor, GitArchive, Repo}
 import org.apache.spark.rdd.RDD
