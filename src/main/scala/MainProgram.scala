@@ -4,6 +4,7 @@ import java.util.zip.GZIPInputStream
 
 import scala.io.Source
 import classes.{Commit, GitArchive}
+import dao.ActorDAO
 import operations.dataframe.{ActorOperationDF, CommitOperationDF, EventOperationDF}
 import operations.dataset.{ActorOperationDS, CommitOperationDS, EventOperationDS}
 import operations.rdd.EventOperationRDD
@@ -44,9 +45,12 @@ object MainProgram {
 
     gitArchiveDs.dropDuplicates("id")
 
+    val actorDao = new ActorDAO()
+
     //write on CSV
     val actor = ActorUtils.getActorDataFrame(gitArchiveDs)
     ActorUtils.actorDataFrameToCSV(actor)
+    actorDao.insertActor(actor)
 
     val author = AuthorUtils.getAuthorDataFrame(gitArchiveDs)
     AuthorUtils.authorDataFrameToCSV(author)
